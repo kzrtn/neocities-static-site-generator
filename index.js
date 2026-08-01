@@ -1,9 +1,12 @@
 const fs = require('node:fs')
 
-const nunjucks = require('nunjucks').configure({autoescape: false})
+const nunjucks = require('nunjucks')
 const MarkdownIt = require('markdown-it')
 const matter = require('gray-matter')
 const dayjs = require('dayjs')
+
+const createFolderPathifNotExists = require('./utils/create_folderpath_if_not_exists.js')
+const copyFilesFromPath = require('./utils/copy_files_from_folder.js')
 
 const md = new MarkdownIt()
 
@@ -13,7 +16,8 @@ const posts_filenames = fs.readdirSync(POST_PATH)
 
 // Folder path for templates
 const TEMPLATES_PATH = './_templates/'
-const templates_filenames = fs.readdirSync(TEMPLATES_PATH)
+const templates = fs.readdirSync(TEMPLATES_PATH)
+nunjucks.configure(TEMPLATES_PATH, { autoescape: false })
 
 // Folder path for style sheets
 const STYLE_PATH = './_styles/'
@@ -23,27 +27,15 @@ const styles = fs.readdirSync(STYLE_PATH)
 const OUTPUT_PATH = './dist/'
 const POST_OUTPUT_PATH = `${OUTPUT_PATH}/posts/`
 
-let templates = []
-for (const template of templates_filenames) {
-  const file = matter(fs.readFileSync(`${TEMPLATES_PATH}/${template}`, { encoding: 'utf8', flag: 'r' }))
-  templates.push(file)
-}
+createFolderPathifNotExists(OUTPUT_PATH)
+createFolderPathifNotExists(POST_OUTPUT_PATH)
+copyFilesFromPath(STYLE_PATH, OUTPUT_PATH) // Copies the stylesheets to dist
 
 for (const post of posts_filenames) {
   fs.readFile(`${POST_PATH}/${post}`, 'utf8', (err, data) => {
     if (err) {
       console.error(err.message)
       return;
-    }
-
-    if (!fs.existsSync(OUTPUT_PATH)){
-      fs.mkdirSync(OUTPUT_PATH);
-      console.log('created dist folder')
-    }
-
-    if (!fs.existsSync(POST_OUTPUT_PATH)){
-      fs.mkdirSync(POST_OUTPUT_PATH);
-      console.log('created /dist/posts/ folder')
     }
 
     const file = matter(data)
@@ -53,39 +45,22 @@ for (const post of posts_filenames) {
 
     const filename = dayjs(date).format('YYYY-MM-DD') + '-' + title.toLowerCase().replace(' ', '-')
 
+    let result = null
     templates.forEach(template => {
-      if (template.data.type === 'post') {
-        const result = nunjucks.renderString(template.content, {content: content, title: title, date: file.data.date})
-        /*
-        const result = template.content
-                      .replace('{{content}}', content)
-                      .replace('{{title}}', title)
-                      .replace('{{date}}', file.data.date)
-        */
-
-        fs.writeFile(`./dist/posts/${filename}.html`, result, err => {
-          if (err) {
-            console.error(err.message)
-          } else {
-            console.log('file written')
-          }
-        })
-      }
+      result = nunjucks.render(template, {content: content, title: title, date: file.data.date})
     })
 
-
-    // Copy all stylesheets into dist
-    for (const style of styles) {
-      try {
-        fs.copyFileSync(`${STYLE_PATH}/${style}`, `${OUTPUT_PATH}/${style}`)
-        console.log('Successfully copied stylesheet')
-      } catch (err) {
+    fs.writeFile(`./dist/posts/${filename}.html`, result, err => {
+      if (err) {
         console.error(err.message)
+      } else {
+        console.log('file written')
       }
-    }
-    
+    })    
   })
 }
+
+
 
 /*
 const PORT = 3000
