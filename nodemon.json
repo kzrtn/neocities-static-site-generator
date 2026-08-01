@@ -1,0 +1,5 @@
+{
+  "watch": ["_posts", "_templates", "_styles", "index.js"],
+  "ext": "md,html,css,js",
+  "exec": "node index.js"
+}
