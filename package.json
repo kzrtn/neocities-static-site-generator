@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "build:watch": "nodemon",
-    "serve": "node bs-server.js",
+    "serve": "node ./server/bs-server.js",
     "dev": "concurrently \"npm run build:watch\" \"npm run serve\"",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
