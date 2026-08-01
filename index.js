@@ -8,42 +8,42 @@ const dayjs = require('dayjs')
 const md = new MarkdownIt()
 
 // Folder path for markdown posts
-const postPath = './_posts/'
-const posts = fs.readdirSync(postPath)
+const POST_PATH = './_posts/'
+const posts = fs.readdirSync(POST_PATH)
 
 // Folder path for templates
-const templatesPath = './_templates/'
-const templates = fs.readdirSync(templatesPath)
+const TEMPLATES_PATH = './_templates/'
+const templates = fs.readdirSync(TEMPLATES_PATH)
 
 // Folder path for style sheets
-const stylePath = './_styles/'
-const styles = fs.readdirSync(stylePath)
+const STYLE_PATH = './_styles/'
+const styles = fs.readdirSync(STYLE_PATH)
 
 // Output folder
-const outPath = './dist/'
-const outPostPath = `${outPath}/posts/`
+const OUTPUT_PATH = './dist/'
+const POST_OUTPUT_PATH = `${OUTPUT_PATH}/posts/`
 
-let templateData = []
+let templates = []
 for (const template of templates) {
-  const file = matter(fs.readFileSync(`${templatesPath}/${template}`, { encoding: 'utf8', flag: 'r' }))
-  templateData.push(file)
+  const file = matter(fs.readFileSync(`${TEMPLATES_PATH}/${template}`, { encoding: 'utf8', flag: 'r' }))
+  templates.push(file)
 }
 
 for (const post of posts) {
-  fs.readFile(`${postPath}/${post}`, 'utf8', (err, data) => {
+  fs.readFile(`${POST_PATH}/${post}`, 'utf8', (err, data) => {
     if (err) {
       console.error(err.message)
       return;
     }
 
-    if (!fs.existsSync(outPath)){
-      fs.mkdirSync(outPath);
+    if (!fs.existsSync(OUTPUT_PATH)){
+      fs.mkdirSync(OUTPUT_PATH);
       console.log('created dist folder')
     }
 
-    if (!fs.existsSync(outPostPath)){
-      fs.mkdirSync(outPostPath);
-      console.log('created dist folder')
+    if (!fs.existsSync(POST_OUTPUT_PATH)){
+      fs.mkdirSync(POST_OUTPUT_PATH);
+      console.log('created /dist/posts/ folder')
     }
 
     const file = matter(data)
@@ -53,7 +53,7 @@ for (const post of posts) {
 
     const filename = dayjs(date).format('YYYY-MM-DD') + '-' + title.toLowerCase().replace(' ', '-')
 
-    templateData.forEach(template => {
+    templates.forEach(template => {
       if (template.data.type === 'post') {
         const result = nunjucks.renderString(template.content, {content: content, title: title, date: file.data.date})
         console.log('the result', result)
@@ -78,7 +78,7 @@ for (const post of posts) {
     // Copy all stylesheets into dist
     for (const style of styles) {
       try {
-        fs.copyFileSync(`${stylePath}/${style}`, `${outPath}/${style}`)
+        fs.copyFileSync(`${STYLE_PATH}/${style}`, `${OUTPUT_PATH}/${style}`)
         console.log('Successfully copied stylesheet')
       } catch (err) {
         console.error(err.message)
