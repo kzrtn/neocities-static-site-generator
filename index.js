@@ -1,14 +1,10 @@
 const fs = require('node:fs')
 
-const express = require('express')
 const MarkdownIt = require('markdown-it')
 const matter = require('gray-matter')
-const bs = require('browser-sync').create()
+const dayjs = require('dayjs')
 
 const md = new MarkdownIt()
-const app = express()
-
-app.use(express.static('dist', {index: 'blogs.html'}))
 
 // Folder path for markdown posts
 const postPath = './_posts/'
@@ -24,11 +20,12 @@ const styles = fs.readdirSync(stylePath)
 
 // Output folder
 const outPath = './dist/'
+const outPostPath = `${outPath}/posts/`
 
-let templateData = null
+let templateData = []
 for (const template of templates) {
-  const data = fs.readFileSync(`${templatesPath}/${template}`, { encoding: 'utf8', flag: 'r' })
-  templateData = data
+  const file = matter(fs.readFileSync(`${templatesPath}/${template}`, { encoding: 'utf8', flag: 'r' }))
+  templateData.push(file)
 }
 
 for (const post of posts) {
@@ -43,45 +40,48 @@ for (const post of posts) {
       console.log('created dist folder')
     }
 
-    if (templateData && fs.existsSync(outPath)) {
-      const file = matter(data)
+    if (!fs.existsSync(outPostPath)){
+      fs.mkdirSync(outPostPath);
+      console.log('created dist folder')
+    }
 
-      const content = md.render(file.content)
-      const title = file.data.title
-      const date = file.data.date
+    const file = matter(data)
+    const content = md.render(file.content)
+    const title = file.data.title
+    const date = new Date(file.data.date)
 
-      const result = templateData
+    const filename = dayjs(date).format('YYYY-MM-DD') + '-' + title.toLowerCase().replace(' ', '-')
+
+    templateData.forEach(template => {
+      if (template.data.type === 'post') {
+        const result = template.content
                       .replace('{{content}}', content)
                       .replace('{{title}}', title)
-                      .replace('{{date}}', date)
+                      .replace('{{date}}', file.data.date)
 
-      fs.writeFile('./dist/test.html', result, err => {
-        if (err) {
-          console.error(err.message)
-        } else {
-          console.log('file written')
-        }
-      })
-
-      // Copy all stylesheets into dist
-      for (const style of styles) {
-        try {
-          fs.copyFileSync(`${stylePath}/${style}`, `${outPath}/${style}`)
-          console.log('Successfully copied stylesheet')
-        } catch (err) {
-          console.error(err.message)
-        }
+        fs.writeFile(`./dist/posts/${filename}.html`, result, err => {
+          if (err) {
+            console.error(err.message)
+          } else {
+            console.log('file written')
+          }
+        })
       }
+    })
 
+
+    // Copy all stylesheets into dist
+    for (const style of styles) {
+      try {
+        fs.copyFileSync(`${stylePath}/${style}`, `${outPath}/${style}`)
+        console.log('Successfully copied stylesheet')
+      } catch (err) {
+        console.error(err.message)
+      }
     }
+    
   })
 }
-
-bs.init({
-  server: "./dist"
-})
-
-bs.reload(["*.html", "*.css"])
 
 /*
 const PORT = 3000
