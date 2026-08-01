@@ -9,11 +9,11 @@ const md = new MarkdownIt()
 
 // Folder path for markdown posts
 const POST_PATH = './_posts/'
-const posts = fs.readdirSync(POST_PATH)
+const posts_filenames = fs.readdirSync(POST_PATH)
 
 // Folder path for templates
 const TEMPLATES_PATH = './_templates/'
-const templates = fs.readdirSync(TEMPLATES_PATH)
+const templates_filenames = fs.readdirSync(TEMPLATES_PATH)
 
 // Folder path for style sheets
 const STYLE_PATH = './_styles/'
@@ -24,12 +24,12 @@ const OUTPUT_PATH = './dist/'
 const POST_OUTPUT_PATH = `${OUTPUT_PATH}/posts/`
 
 let templates = []
-for (const template of templates) {
+for (const template of templates_filenames) {
   const file = matter(fs.readFileSync(`${TEMPLATES_PATH}/${template}`, { encoding: 'utf8', flag: 'r' }))
   templates.push(file)
 }
 
-for (const post of posts) {
+for (const post of posts_filenames) {
   fs.readFile(`${POST_PATH}/${post}`, 'utf8', (err, data) => {
     if (err) {
       console.error(err.message)
@@ -56,7 +56,6 @@ for (const post of posts) {
     templates.forEach(template => {
       if (template.data.type === 'post') {
         const result = nunjucks.renderString(template.content, {content: content, title: title, date: file.data.date})
-        console.log('the result', result)
         /*
         const result = template.content
                       .replace('{{content}}', content)
