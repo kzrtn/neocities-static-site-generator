@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <link href="styles.css" rel="stylesheet">
+    <title>Blogs</title>
+  </head>
+  <body>
+
+    <div class="viewpage">
+      <div class="container">
+        <h1>Blog Index</h1>
+        <p>Shows a list of all blog entries and basic information about them</p>
+        <table>
+          <tr>
+            <th>Date</th>
+            <th>Day</th>
+            <th>Blog title</th>
+          </tr>
+          {% for post in posts %}
+          <tr id="{{ post.id }}">
+            <td style="width: 8rem">{{ post.date }}</td>
+            <td style="width: 8rem">{{ post.day }}</td>
+            <td style="width: 20rem"><a href="./posts/{{ post.filename }}">{{ post.title }}</a></td>
+          </tr>
+        </table>
+        {% else %}
+        <tr colspan="3">There are no blog entries</tr>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
