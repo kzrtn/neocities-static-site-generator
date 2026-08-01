@@ -17,7 +17,8 @@
     "concurrently": "^10.0.4",
     "dayjs": "^1.11.21",
     "gray-matter": "^4.0.3",
-    "markdown-it": "^15.0.0"
+    "markdown-it": "^15.0.0",
+    "nunjucks": "^3.2.4"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4",

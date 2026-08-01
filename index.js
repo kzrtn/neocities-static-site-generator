@@ -1,5 +1,6 @@
 const fs = require('node:fs')
 
+const nunjucks = require('nunjucks').configure({autoescape: false})
 const MarkdownIt = require('markdown-it')
 const matter = require('gray-matter')
 const dayjs = require('dayjs')
@@ -54,10 +55,14 @@ for (const post of posts) {
 
     templateData.forEach(template => {
       if (template.data.type === 'post') {
+        const result = nunjucks.renderString(template.content, {content: content, title: title, date: file.data.date})
+        console.log('the result', result)
+        /*
         const result = template.content
                       .replace('{{content}}', content)
                       .replace('{{title}}', title)
                       .replace('{{date}}', file.data.date)
+        */
 
         fs.writeFile(`./dist/posts/${filename}.html`, result, err => {
           if (err) {
