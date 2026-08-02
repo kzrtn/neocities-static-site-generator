@@ -14,7 +14,9 @@ const { randomUUID } = require('node:crypto')
 const md = new MarkdownIt()
 nunjucks.configure(config.TEMPLATES_PATH, { autoescape: false })
 
-// dist set up, creates folders and copies stylesheets over
+// Delete dist folder, recreate and copy stylesheets over
+// It's important to delete any previous posts that are no longer in _posts
+fs.rmSync(config.OUTPUT_PATH, { recursive:true, force: true })
 createFolderPathifNotExists(config.OUTPUT_PATH)
 createFolderPathifNotExists(config.POST_OUTPUT_PATH)
 copyFilesFromPath(config.STYLE_PATH, config.OUTPUT_PATH)
@@ -22,16 +24,16 @@ copyFilesFromPath(config.STYLE_PATH, config.OUTPUT_PATH)
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 let postsData = []
 for (const post of config.posts) {
-  const data = fs.readFileSync(`${config.POST_PATH}/${post}`, { encoding: 'utf-8', flag: 'r' })
-  const file = matter(data)
-
-  const content = md.render(file.content)
-  const title = file.data.title
-  const date = new Date(file.data.date)
+  const rawData = fs.readFileSync(`${config.POST_PATH}/${post}`, { encoding: 'utf-8', flag: 'r' })
+  const dataObj = matter(rawData)
+  
+  const HTMLcontent = md.render(dataObj.content)
+  const title = dataObj.data.title
+  const date = new Date(dataObj.data.date)
   const filename = dayjs(date).format('YYYY-MM-DD') + '-' + removeIllegalChar(title)
 
   postsData.push({
-    content: content,
+    content: HTMLcontent,
     title: title,
     date: `${dayjs(date).format('YYYY-MM-DD')}`,
     day: weekdays[date.getDay()],
@@ -39,8 +41,11 @@ for (const post of config.posts) {
     filename: `${filename}.html`
   })
 
+  // Copy images to appropriate destination in dist if they exist
+  parseImages(dataObj.content)
+
   // Render the page with new data and final HTML to output
-  const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: content, title: title, date: date.toDateString()})
+  const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
   fs.writeFileSync(`./dist/posts/${filename}.html`, output)
 }
 
@@ -52,4 +57,25 @@ function removeIllegalChar(s) {
   return s.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-'); 
+}
+
+// Accepts string of markdown data and copies any images referenced to output folder
+function parseImages(rawData) {
+  const imagePaths = rawData.match(/(?<=!\[.*\]\().*(?=\))/g)
+  imagePaths.forEach(imagePath => {
+    if (!imagePath.includes('http')) {
+      const imageHomePath = imagePath.match(/^.*[\/$]/g)
+      createFolderPathifNotExists(`${config.OUTPUT_PATH}/posts/${imageHomePath}`)
+
+      const sourcePath = `_posts/${imagePath}`
+      const destPath = `${config.OUTPUT_PATH}/posts/${imagePath}`
+
+      try {
+        fs.copyFileSync(sourcePath, destPath)
+        console.log(`COPIED FILE: FROM '${sourcePath}' TO '${destPath}'`)
+      } catch (err) {
+        console.error(err.message)
+      }
+    }
+  })  
 }

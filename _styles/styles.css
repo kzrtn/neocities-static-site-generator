@@ -25,3 +25,7 @@ table, tr, th, td {
   border-collapse: collapse;
   text-align: start;
 }
+
+img {
+  max-width: 40rem;
+}
