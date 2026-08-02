@@ -25,4 +25,6 @@ The blog index is a little bit more tricky. It uses a for loop of all of your po
 
 The posts also rely on the styles.css in the `_styles` folder. The generated site automatically copies the stylesheets there and inserts them at the root of the `dist` folder. Make sure your layout templates correctly links to it!
 
+![Image](../media/landlady.png.png)
+
 Feel free to poke around the samples I've provided. But whenever you're done, just build the site and upload the contents of `dist` to your neocities site! Happy building!
