@@ -64,6 +64,10 @@ function parseImages(rawData) {
   const imagePaths = rawData.match(/(?<=!\[.*\]\().*(?=\))/g)
   imagePaths.forEach(imagePath => {
     if (!imagePath.includes('http')) {
+      if (imagePath.includes('<') && imagePath.includes('>')) {
+        imagePath = (imagePath.match(/(?<=<).*(?=>)/g))[0]
+      }
+      
       const imageHomePath = imagePath.match(/^.*[\/$]/g)
       createFolderPathifNotExists(`${config.OUTPUT_PATH}/posts/${imageHomePath}`)
 

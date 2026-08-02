@@ -25,8 +25,9 @@ The blog index is a little bit more tricky. It uses a for loop of all of your po
 
 The posts also rely on the styles.css in the `_styles` folder. The generated site automatically copies the stylesheets there and inserts them at the root of the `dist` folder. Make sure your layout templates correctly links to it!
 
-![Image](../media/landlady.png)
-
+We also support images! Put them in any folder within the project (even outside `_posts`) and appropriately link to them. The images will get copied over in the same folder format to `dist`.
+![Image](../_media/landlady.png)
+![Image with spaces in name/directory](<../_media/uwu girl.PNG>)
 ![Miyori and Sendai](https://cdn.donmai.us/sample/69/0c/__sendai_hazuki_and_miyagi_shiori_shuuniichido_classmate_wo_kau_hanashi_drawn_by_sasagawa_yuki__sample-690c3fc2ea2e515488d2dc94f3381c38.jpg)
 
 Feel free to poke around the samples I've provided. But whenever you're done, just build the site and upload the contents of `dist` to your neocities site! Happy building!
