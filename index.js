@@ -62,6 +62,9 @@ function removeIllegalChar(s) {
 // Accepts string of markdown data and copies any images referenced to output folder
 function parseImages(rawData) {
   const imagePaths = rawData.match(/(?<=!\[.*\]\().*(?=\))/g)
+
+  if (imagePaths == null) return
+  
   imagePaths.forEach(imagePath => {
     if (!imagePath.includes('http')) {
       if (imagePath.includes('<') && imagePath.includes('>')) {
