@@ -4,7 +4,7 @@ const {BLOG_INDEX} = require('../config/config.js')
 bs.init({
   server: "./dist",
   startPath: `/${BLOG_INDEX}.html`,
-  watch: true,
+  files: ["*/*"],
   notify: false,
   watchEvents: ["change", "add", "unlink", "addDir", "unlinkDir"]
 })
