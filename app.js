@@ -15,6 +15,9 @@ const removeIllegalChar = require(path.join(__dirname, '/utils/remove_illegal_ch
 const { randomUUID } = require('node:crypto')
 
 const md = new MarkdownIt()
+if (createFolderPathifNotExists(path.join(ROOT, config.TEMPLATES_PATH))) {
+  console.log(`WARNING: ${config.TEMPLATES_PATH} directory does not exist. Created folder path but you have no templates.`)
+}
 nunjucks.configure(path.join(ROOT, config.TEMPLATES_PATH), { autoescape: false })
 
 // Delete dist folder, recreate and copy stylesheets over
@@ -23,14 +26,20 @@ const distFolderSetUp = () => {
   fs.rmSync(path.join(ROOT, config.OUTPUT_PATH), { recursive:true, force: true })
   createFolderPathifNotExists(path.join(ROOT, config.OUTPUT_PATH))
   createFolderPathifNotExists(path.join(ROOT, config.POST_OUTPUT_PATH))
-  copyFilesFromPath(path.join(ROOT, config.STYLE_PATH), path.join(ROOT, config.OUTPUT_PATH))
+  if (createFolderPathifNotExists(path.join(ROOT, config.STYLE_PATH))) {
+    console.log(`WARNING: ${config.STYLE_PATH} does not exist. Created folder to compensate but you have no styles.`)
+  } else {
+    copyFilesFromPath(path.join(ROOT, config.STYLE_PATH), path.join(ROOT, config.OUTPUT_PATH))
+  }
   console.log("Successfuly created output folders and copied style sheets.")
 }
 
 const generateBlogPosts = () => {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-  createFolderPathifNotExists(path.join(ROOT, config.POST_PATH))
+  if (createFolderPathifNotExists(path.join(ROOT, config.POST_PATH))) {
+    console.log(`WARNING: ${config.POST_PATH} does not exist. Created folder but you have no posts.`)
+  }
   const postsPath = path.join(ROOT, config.POST_PATH)
   const posts = fs.readdirSync(postsPath)
   for (const post of posts) {
