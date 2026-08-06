@@ -17,6 +17,8 @@ const STYLE_PATH = './_styles/'
 
 // Output folder
 const OUTPUT_PATH = './dist/'
+
+// Blog posts output folder (Default is ./dist/posts/)
 const POST_OUTPUT_PATH = `${OUTPUT_PATH}/posts/`
 
 module.exports = {
