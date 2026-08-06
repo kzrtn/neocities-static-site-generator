@@ -2,9 +2,6 @@
 const process = require('node:process')
 const fs = require('node:fs')
 const path = require('node:path')
-const { execSync } = require('child_process')
-const isWindows = process.platform === `win32`
-const npm = isWindows ? `npm.cmd` : `npm`
 
 const nodemon = require('nodemon')
 const bs = require('browser-sync').create()
@@ -14,11 +11,11 @@ const copyFilesFromPath = require(path.join(__dirname, '/utils/copy_files_from_f
 
 if (process.argv.length < 3) {
   console.log("Insufficient arguments. Please use 'npx neocities-ssg [argument]'")
-  console.log("Available arguments: create 'your-site-name', build, serve")
+  console.log("Available arguments: create 'your-site-name', serve")
   process.exit()
 }
 
-if (process.argv[2] === 'create') {
+else if (process.argv[2] === 'create') {
   if (process.argv.length !== 4) {
     console.log("Insufficient or too many arguments. Please use 'npx neocities-ssg create 'your-site-name'.")
     console.log("Site name needs to be one word long.")
@@ -47,7 +44,7 @@ if (process.argv[2] === 'create') {
   copyFilesFromPath(path.join(__dirname, 'config'), path.join(process.cwd(), siteName, 'config'))
 }
 
-if (process.argv[2] === 'serve') {
+else if (process.argv[2] === 'serve') {
   nodemon({
     "watch": ["_posts", "_templates", "_styles", "index.js"],
     "ext": "md,html,css,js",
@@ -67,4 +64,9 @@ if (process.argv[2] === 'serve') {
     watchEvents: ["change", "add", "unlink", "addDir", "unlinkDir"]
   })
   bs.reload(["*.html", "*.css"])
+}
+
+else {
+  console.log("Unrecognized arguments. Please use 'npx neocities-ssg [argument]'")
+  console.log("Available arguments: create 'your-site-name', serve")
 }
