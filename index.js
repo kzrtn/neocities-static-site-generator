@@ -46,8 +46,8 @@ else if (process.argv[2] === 'create') {
 
 else if (process.argv[2] === 'serve') {
   nodemon({
-    "watch": ["_posts", "_templates", "_styles", "index.js"],
-    "ext": "md,html,css,js",
+    "watch": [`${process.cwd()}`],
+    "ext": "md,html,css,js,gif,jpg,jpeg,png,svg,webp",
     "exec": `cd ${__dirname} && node app.js -- ${process.cwd()}`
   })
 
