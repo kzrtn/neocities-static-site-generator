@@ -16,7 +16,7 @@ const copyFilesFromPath = require(path.join(__dirname, '/utils/copy_files_from_f
 const { randomUUID } = require('node:crypto')
 
 const md = new MarkdownIt()
-nunjucks.configure(config.TEMPLATES_PATH, { autoescape: false })
+nunjucks.configure(path.join(rootPath, config.TEMPLATES_PATH), { autoescape: false })
 
 // Delete dist folder, recreate and copy stylesheets over
 // It's important to delete any previous posts that are no longer in _posts
