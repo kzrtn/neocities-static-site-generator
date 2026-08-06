@@ -30,6 +30,7 @@ const distFolderSetUp = () => {
 const generateBlogPosts = () => {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+  createFolderPathifNotExists(path.join(ROOT, config.POST_PATH))
   const postsPath = path.join(ROOT, config.POST_PATH)
   const posts = fs.readdirSync(postsPath)
   for (const post of posts) {
