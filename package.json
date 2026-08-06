@@ -1,6 +1,6 @@
 {
   "name": "simpler-ssg",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "static site generator for neocities blog pages",
   "license": "ISC",
   "author": "kzrtn",
