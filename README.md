@@ -1,13 +1,37 @@
-# A Simple Neocities Static Site Generator
+# A Simple Static Site Generator (simpler-SSG)
 This is a simple static site generator for blog entries on neocities.
 
-## How to use
-You create your posts as text files in [Markdown](https://www.markdownguide.org/basic-syntax/) format and put them in the `_posts` folder.
+## How it works
+[Markdown](https://www.markdownguide.org/basic-syntax/) files in the `_posts` folder automatically gets converted by Nunjucks and MarkdownIt into HTML files and output them all into the `dist` folder with your own layout and style.
 
-Then, you build the site using `npm start`. (However, I recommend using `npm run dev` to run a live preview of the website that also updates whenever you save any file in the project).
+simpler-SSG also supports taking all of those markdown files and indexing them in a final `blog-index.html` file. This way you can easily create new blog posts without worrying about writing raw html for the posts and manually updating your hyperlinks to them.
 
-Nunjucks and MarkdownIt will automatically convert your markdown files into HTML files and output them all into the `dist` folder. Blog posts themselves are inserted into `dist/posts/`
+## Quick Start
+First, ensure you have [Node](https://nodejs.org/en/download) installed.
 
+Then run:
+```
+npx simpler-ssg create (your-site-name)
+```
+It will generate a folder named after `(your-site-name)` with the following folders:
+* `_media` - for assets (images, videos, etc)
+* `_posts` - for blog posts written in markdown
+* `_styles` - should contain any .css files that `_templates` uses
+* `_templates` - holds `blog-index.html` and `blog-post.html`, the template files for blog post and blog index generation
+* `config` - contains config.js
+
+To build your site, first enter the working directory of your website:
+```
+cd (your-site-name)
+```
+
+Then run:
+```
+npx simpler-ssg serve
+```
+simpler-ssg will generate a folder called `dist` that contains all of the output files your use. It will also open a live preview of the website that also updates whenever you save any file in the project.
+
+## Templating
 You can edit the layouts of the generated blog posts and blog index in the `_templates` folder. The content is inserted with Nunjucks, so it uses [Jinja2](https://jinja.palletsprojects.com/en/stable/) style syntax.
 
 Basically:
@@ -30,13 +54,12 @@ We also support images! Put them in any folder within the project (even outside 
 * Nunjucks
 * MarkdownIt
 * Browser-server
-* Concurrently
 
 ## To-do:
 * ~~Add ability for posts to include images~~ DONE
-* Add an easier way for users to install this with the templates, configs, etc
+* ~~Add an easier way for users to install this with the templates, configs, etc~~
 * Fix this readme, it's not comprehensible enough
 * Write unit tests for this (I FEEL like there are bugs but I can't tell yet)
-* (bug) Browser-server is not working properly on MacOS
 * Add ability for different markdown posts to link to different blog templates
+* Add `npx simpler-ssg build` option for builders who don't want to serve
 * (maybe) write my own markdown parser
