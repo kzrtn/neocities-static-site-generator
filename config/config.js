@@ -14,7 +14,6 @@ module.exports = {
   BLOG_POST,
   POST_PATH,
   TEMPLATES_PATH,
-  templates,
   STYLE_PATH,
   OUTPUT_PATH,
   POST_OUTPUT_PATH,
