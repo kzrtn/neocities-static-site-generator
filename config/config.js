@@ -1,7 +1,7 @@
 fs = require('node:fs')
 
-const BLOG_INDEX = 'blog-index' // file name for blog index
-const BLOG_POST = 'blog-post' // file name for blog post
+const BLOG_INDEX = 'blog-index' // file name for blog index, excluding the file extension `.html`
+const BLOG_POST = 'blog-post' // file name for blog post, excluding the file extension `.html`
 
 const POST_PATH = './_posts/' // Folder path for markdown posts
 const TEMPLATES_PATH = './_templates/' // Folder path for templates
