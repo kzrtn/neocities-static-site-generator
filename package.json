@@ -1,17 +1,18 @@
 {
   "name": "neocities-ssg",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "static site generator for neocities blog pages",
   "license": "ISC",
   "author": "kzrtn",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "app.js",
+  "bin": "index.js",
   "scripts": {
     "build:watch": "nodemon",
     "serve": "node ./server/bs-server.js",
     "dev": "concurrently \"npm run build:watch\" \"npm run serve\"",
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "test": "node index.js"
   },
   "dependencies": {
     "concurrently": "^10.0.4",
