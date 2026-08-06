@@ -7,7 +7,7 @@ const createFolderPathifNotExists = (path) => {
     // console.log(`FOLDER CREATED: '${path}'`)
     return true
   } else {
-    console.log(`FOLDER ALREADY EXISTS: '${path}'`)
+    // console.log(`FOLDER ALREADY EXISTS: '${path}'`)
     return false
   }
 }
