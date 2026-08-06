@@ -1,14 +1,18 @@
 const fs = require('node:fs')
+const process = require('node:process')
+const path = require('node:path')
+
+const rootPath = process.argv[3]
+console.log(rootPath)
 
 const nunjucks = require('nunjucks')
 const MarkdownIt = require('markdown-it')
 const matter = require('gray-matter')
 const dayjs = require('dayjs')
 
-const config = require('./config/config.js')
-
-const createFolderPathifNotExists = require('./utils/create_folderpath_if_not_exists.js')
-const copyFilesFromPath = require('./utils/copy_files_from_folder.js')
+const config = require(path.join(rootPath, '/config/config.js'))
+const createFolderPathifNotExists = require(path.join(__dirname, '/utils/create_folderpath_if_not_exists.js'))
+const copyFilesFromPath = require(path.join(__dirname, '/utils/copy_files_from_folder.js'))
 const { randomUUID } = require('node:crypto')
 
 const md = new MarkdownIt()
@@ -16,15 +20,15 @@ nunjucks.configure(config.TEMPLATES_PATH, { autoescape: false })
 
 // Delete dist folder, recreate and copy stylesheets over
 // It's important to delete any previous posts that are no longer in _posts
-fs.rmSync(config.OUTPUT_PATH, { recursive:true, force: true })
-createFolderPathifNotExists(config.OUTPUT_PATH)
-createFolderPathifNotExists(config.POST_OUTPUT_PATH)
-copyFilesFromPath(config.STYLE_PATH, config.OUTPUT_PATH)
+fs.rmSync(path.join(rootPath, config.OUTPUT_PATH), { recursive:true, force: true })
+createFolderPathifNotExists(path.join(rootPath, config.OUTPUT_PATH))
+createFolderPathifNotExists(path.join(rootPath, config.POST_OUTPUT_PATH))
+copyFilesFromPath(path.join(rootPath, config.STYLE_PATH), path.join(rootPath, config.OUTPUT_PATH))
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 let postsData = []
 for (const post of config.posts) {
-  const rawData = fs.readFileSync(`${config.POST_PATH}/${post}`, { encoding: 'utf-8', flag: 'r' })
+  const rawData = fs.readFileSync(path.join(rootPath, config.POST_PATH, post), { encoding: 'utf-8', flag: 'r' })
   const dataObj = matter(rawData)
   
   const HTMLcontent = md.render(dataObj.content)
@@ -42,16 +46,16 @@ for (const post of config.posts) {
   })
 
   // Copy images to appropriate destination in dist if they exist
-  parseImages(dataObj.content)
+  parseImages(dataObj.content, createFolderPathifNotExists)
 
   // Render the page with new data and final HTML to output
   const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
-  fs.writeFileSync(`./dist/posts/${filename}.html`, output)
+  fs.writeFileSync(path.join(rootPath, config.OUTPUT_PATH, '/posts/', `${filename}.html`), output)
 }
 
 // Render the index page with all the posts
 const result = nunjucks.render(`${config.BLOG_INDEX}.html`, {posts: postsData.reverse()})
-fs.writeFileSync(`./dist/${config.BLOG_INDEX}.html`, result)
+fs.writeFileSync(path.join(rootPath, config.OUTPUT_PATH, `${config.BLOG_INDEX}.html`), result)
 
 function removeIllegalChar(s) {
   return s.toLowerCase()
@@ -60,7 +64,7 @@ function removeIllegalChar(s) {
 }
 
 // Accepts string of markdown data and copies any images referenced to output folder
-function parseImages(rawData) {
+function parseImages(rawData, createFolderPathifNotExist) {
   const imagePaths = rawData.match(/(?<=!\[.*\]\().*(?=\))/g)
 
   if (imagePaths == null) return
@@ -72,10 +76,10 @@ function parseImages(rawData) {
       }
       
       const imageHomePath = imagePath.match(/^.*[\/$]/g)
-      createFolderPathifNotExists(`${config.OUTPUT_PATH}/posts/${imageHomePath}`)
-
-      const sourcePath = `_posts/${imagePath}`
-      const destPath = `${config.OUTPUT_PATH}/posts/${imagePath}`
+  
+      createFolderPathifNotExist(path.join(rootPath, `/${config.OUTPUT_PATH}/posts/${imageHomePath}`))
+      const sourcePath = path.join(rootPath, `/_posts/${imagePath}`)
+      const destPath = path.join(rootPath, `/${config.OUTPUT_PATH}/posts/${imagePath}`)
 
       try {
         fs.copyFileSync(sourcePath, destPath)
@@ -83,10 +87,7 @@ function parseImages(rawData) {
       } catch (err) {
         console.error(err.message)
       }
+      
     }
   })  
-}
-
-exports.printMsg = function() {
-  console.log("This is a message from the demo package");
 }
