@@ -19,52 +19,58 @@ nunjucks.configure(path.join(ROOT, config.TEMPLATES_PATH), { autoescape: false }
 
 // Delete dist folder, recreate and copy stylesheets over
 // It's important to delete any previous posts that are no longer in _posts
-fs.rmSync(path.join(ROOT, config.OUTPUT_PATH), { recursive:true, force: true })
-createFolderPathifNotExists(path.join(ROOT, config.OUTPUT_PATH))
-createFolderPathifNotExists(path.join(ROOT, config.POST_OUTPUT_PATH))
-copyFilesFromPath(path.join(ROOT, config.STYLE_PATH), path.join(ROOT, config.OUTPUT_PATH))
-console.log("Successfuly created output folders and copied style sheets.")
-
-const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-
-const postsPath = path.join(ROOT, config.POST_PATH)
-const posts = fs.readdirSync(postsPath)
-let postsData = []
-for (const post of posts) {
-  const rawData = fs.readFileSync(path.join(postsPath, post), { encoding: 'utf-8', flag: 'r' })
-  const dataObj = matter(rawData)
-  
-  const HTMLcontent = md.render(dataObj.content)
-  const title = dataObj.data.title
-  const date = new Date(dataObj.data.date)
-  const filename = dayjs(date).format('YYYY-MM-DD') + '-' + removeIllegalChar(title)
-
-  postsData.push({
-    content: HTMLcontent,
-    title: title,
-    date: `${dayjs(date).format('YYYY-MM-DD')}`,
-    day: weekdays[date.getDay()],
-    id: randomUUID(),
-    filename: `${filename}.html`
-  })
-
-  // Copy images to appropriate destination in dist if they exist
-  parseImages(dataObj.content, createFolderPathifNotExists)
-
-  // Render the page with new data and final HTML to output
-  const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
-  fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, '/posts/', `${filename}.html`), output)
+const distFolderSetUp = () => {
+  fs.rmSync(path.join(ROOT, config.OUTPUT_PATH), { recursive:true, force: true })
+  createFolderPathifNotExists(path.join(ROOT, config.OUTPUT_PATH))
+  createFolderPathifNotExists(path.join(ROOT, config.POST_OUTPUT_PATH))
+  copyFilesFromPath(path.join(ROOT, config.STYLE_PATH), path.join(ROOT, config.OUTPUT_PATH))
+  console.log("Successfuly created output folders and copied style sheets.")
 }
 
-// Render the index page with all the posts
-const result = nunjucks.render(`${config.BLOG_INDEX}.html`, {posts: postsData.reverse()})
-fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, `${config.BLOG_INDEX}.html`), result)
+const generateBlogPosts = () => {
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+  const postsPath = path.join(ROOT, config.POST_PATH)
+  const posts = fs.readdirSync(postsPath)
+  for (const post of posts) {
+    const rawData = fs.readFileSync(path.join(postsPath, post), { encoding: 'utf-8', flag: 'r' })
+    const dataObj = matter(rawData)
+    
+    const HTMLcontent = md.render(dataObj.content)
+    const title = dataObj.data.title
+    const date = new Date(dataObj.data.date)
+    const filename = dayjs(date).format('YYYY-MM-DD') + '-' + removeIllegalChar(title)
+
+    postsData.push({
+      content: HTMLcontent,
+      title: title,
+      date: `${dayjs(date).format('YYYY-MM-DD')}`,
+      day: weekdays[date.getDay()],
+      id: randomUUID(),
+      filename: `${filename}.html`
+    })
+
+    // Copy images to appropriate destination in dist if they exist
+    parseImages(dataObj.content)
+
+    // Render the page with new data and final HTML to output
+    const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
+    fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, '/posts/', `${filename}.html`), output)
+  }
+  console.log('Successfully generated blog posts.')
+}
+
+const generateBlogIndex = postsData => {
+  // Render the index page with all the posts
+  const result = nunjucks.render(`${config.BLOG_INDEX}.html`, {posts: postsData.reverse()})
+  fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, `${config.BLOG_INDEX}.html`), result)
+  console.log('Successfully generated blog index.')
+}
+
 
 // Accepts string of markdown data and copies any images referenced to output folder
-function parseImages(rawData) {
+const parseImages = rawData => {
   const imagePaths = rawData.match(/(?<=!\[.*\]\().*(?=\))/g)
-
   if (imagePaths == null) return
   
   imagePaths.forEach(imagePath => {
@@ -73,9 +79,8 @@ function parseImages(rawData) {
         imagePath = (imagePath.match(/(?<=<).*(?=>)/g))[0]
       }
       
-      const imageHomePath = imagePath.match(/^.*[\/$]/g)
-  
-      createFolderPathifNotExist(path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imageHomePath}`))
+      const imageHomePath = imagePath.match(/^.*[\/$]/g) // This regex gives the closest parent folder to the image file
+      createFolderPathifNotExists(path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imageHomePath}`))
       const sourcePath = path.join(ROOT, `/_posts/${imagePath}`)
       const destPath = path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imagePath}`)
 
@@ -88,3 +93,8 @@ function parseImages(rawData) {
     }
   })  
 }
+
+let postsData = []
+distFolderSetUp()
+generateBlogPosts(postsData)
+generateBlogIndex(postsData)
