@@ -54,7 +54,8 @@ const generateBlogPosts = () => {
     parseImages(dataObj.content)
 
     // Render the page with new data and final HTML to output
-    const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
+    const BLOG_POST_NAME = config.BLOG_POST.replace(".html", '') // I don't trust users to name their templates properly
+    const output = nunjucks.render(`${BLOG_POST_NAME}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
     fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, '/posts/', `${filename}.html`), output)
   }
   console.log('Successfully generated blog posts.')
@@ -62,8 +63,9 @@ const generateBlogPosts = () => {
 
 const generateBlogIndex = postsData => {
   // Render the index page with all the posts
-  const result = nunjucks.render(`${config.BLOG_INDEX}.html`, {posts: postsData.reverse()})
-  fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, `${config.BLOG_INDEX}.html`), result)
+  const BLOG_INDEX_NAME = config.BLOG_INDEX.replace('.html', '') // I don't trust users
+  const result = nunjucks.render(`${BLOG_INDEX_NAME}.html`, {posts: postsData.reverse()})
+  fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, `${BLOG_INDEX_NAME}.html`), result)
   console.log('Successfully generated blog index.')
 }
 
