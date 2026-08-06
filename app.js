@@ -27,7 +27,8 @@ copyFilesFromPath(path.join(rootPath, config.STYLE_PATH), path.join(rootPath, co
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 let postsData = []
-for (const post of config.posts) {
+const posts = fs.readdirSync(path.join(rootPath, config.POST_PATH))
+for (const post of posts) {
   const rawData = fs.readFileSync(path.join(rootPath, config.POST_PATH, post), { encoding: 'utf-8', flag: 'r' })
   const dataObj = matter(rawData)
   
