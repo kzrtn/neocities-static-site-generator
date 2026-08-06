@@ -6,9 +6,9 @@ const copyFilesFromPath = (origin, dest) => {
   for (const file of files) {
     try {
       fs.copyFileSync(`${origin}/${file}`, `${dest}/${file}`)
-      console.log(`COPIED FILE: FROM '${origin}/${file}' TO '${dest}/${file}'`)
+      // console.log(`COPIED FILE: FROM '${origin}/${file}' TO '${dest}/${file}'`)
     } catch (err) {
-      console.error(err.message)
+      console.error('ERROR COPYING FILES: ', err.message)
     }
   }
 }
