@@ -48,7 +48,7 @@ else if (process.argv[2] === 'serve') {
   const config = require(path.join(process.cwd(), '/config/config.js'))
 
   nodemon({
-    "watch": ["_posts", "_templates", "_styles", "_media", "config", `${config.OUTPUT_PATH}`],
+    "watch": ["_posts", "_templates", "_styles", "_media", "config"],
     "ext": "md,html,css,js,gif,jpg,jpeg,png,svg,webp",
     "exec": `cd ${__dirname} && node app.js -- ${process.cwd()}`
   })
