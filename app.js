@@ -16,7 +16,8 @@ const { randomUUID } = require('node:crypto')
 
 const md = new MarkdownIt()
 if (createFolderPathifNotExists(path.join(ROOT, config.TEMPLATES_PATH))) {
-  console.log(`WARNING: ${config.TEMPLATES_PATH} directory does not exist. Created folder path but you have no templates.`)
+  console.log(`WARNING: ${config.TEMPLATES_PATH} directory does not exist. Created folder path but you have no templates. Ending process.`)
+  process.exit()
 }
 nunjucks.configure(path.join(ROOT, config.TEMPLATES_PATH), { autoescape: false })
 
@@ -27,7 +28,7 @@ const distFolderSetUp = () => {
   createFolderPathifNotExists(path.join(ROOT, config.OUTPUT_PATH))
   createFolderPathifNotExists(path.join(ROOT, config.POST_OUTPUT_PATH))
   if (createFolderPathifNotExists(path.join(ROOT, config.STYLE_PATH))) {
-    console.log(`WARNING: ${config.STYLE_PATH} does not exist. Created folder to compensate but you have no styles.`)
+    console.log(`WARNING: ${config.STYLE_PATH} does not exist. Created folder to compensate but you have no styles. Please restart app to see further style changes.`)
   } else {
     copyFilesFromPath(path.join(ROOT, config.STYLE_PATH), path.join(ROOT, config.OUTPUT_PATH))
   }
@@ -38,7 +39,7 @@ const generateBlogPosts = () => {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
   if (createFolderPathifNotExists(path.join(ROOT, config.POST_PATH))) {
-    console.log(`WARNING: ${config.POST_PATH} does not exist. Created folder but you have no posts.`)
+    console.log(`WARNING: ${config.POST_PATH} does not exist. Created folder but you have no posts. Please restart app to see further post changes.`)
   }
   const postsPath = path.join(ROOT, config.POST_PATH)
   const posts = fs.readdirSync(postsPath)
