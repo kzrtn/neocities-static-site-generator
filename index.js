@@ -45,8 +45,10 @@ else if (process.argv[2] === 'create') {
 }
 
 else if (process.argv[2] === 'serve') {
+  const config = require(path.join(process.cwd(), '/config/config.js'))
+
   nodemon({
-    "watch": [`${process.cwd()}`],
+    "watch": ["_posts", "_templates", "_styles", "_media", "config", `${config.OUTPUT_PATH}`],
     "ext": "md,html,css,js,gif,jpg,jpeg,png,svg,webp",
     "exec": `cd ${__dirname} && node app.js -- ${process.cwd()}`
   })
@@ -55,10 +57,10 @@ else if (process.argv[2] === 'serve') {
     .on('start', () => console.log('Nodemon started'))
     .on('quit', () => process.exit())
 
-  const config = require(path.join(process.cwd(), '/config/config.js'))
+  const BLOG_INDEX_NAME = config.BLOG_INDEX.replace('.html', '')
   bs.init({
     server: config.OUTPUT_PATH,
-    startPath: `/${config.BLOG_INDEX}.html`,
+    startPath: `/${BLOG_INDEX_NAME}.html`,
     files: ["*/*"],
     notify: false,
     watchEvents: ["change", "add", "unlink", "addDir", "unlinkDir"]
