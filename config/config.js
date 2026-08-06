@@ -13,7 +13,6 @@ module.exports = {
   BLOG_INDEX,
   BLOG_POST,
   POST_PATH,
-  posts,
   TEMPLATES_PATH,
   templates,
   STYLE_PATH,
