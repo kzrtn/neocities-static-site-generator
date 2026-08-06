@@ -1,5 +1,5 @@
 {
-  "name": "neocities-ssg",
+  "name": "simple-ssg",
   "version": "0.0.0",
   "description": "static site generator for neocities blog pages",
   "license": "ISC",
