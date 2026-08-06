@@ -1,35 +1,38 @@
 const fs = require('node:fs')
-const process = require('node:process')
 const path = require('node:path')
-
-const rootPath = process.argv[3]
-console.log(rootPath)
+const process = require('node:process')
+const ROOT = process.argv[3]
 
 const nunjucks = require('nunjucks')
 const MarkdownIt = require('markdown-it')
 const matter = require('gray-matter')
 const dayjs = require('dayjs')
 
-const config = require(path.join(rootPath, '/config/config.js'))
+const config = require(path.join(ROOT, '/config/config.js'))
 const createFolderPathifNotExists = require(path.join(__dirname, '/utils/create_folderpath_if_not_exists.js'))
 const copyFilesFromPath = require(path.join(__dirname, '/utils/copy_files_from_folder.js'))
+const removeIllegalChar = require(path.join(__dirname, '/utils/remove_illegal_char_from_string.js'))
 const { randomUUID } = require('node:crypto')
 
 const md = new MarkdownIt()
-nunjucks.configure(path.join(rootPath, config.TEMPLATES_PATH), { autoescape: false })
+nunjucks.configure(path.join(ROOT, config.TEMPLATES_PATH), { autoescape: false })
 
 // Delete dist folder, recreate and copy stylesheets over
 // It's important to delete any previous posts that are no longer in _posts
-fs.rmSync(path.join(rootPath, config.OUTPUT_PATH), { recursive:true, force: true })
-createFolderPathifNotExists(path.join(rootPath, config.OUTPUT_PATH))
-createFolderPathifNotExists(path.join(rootPath, config.POST_OUTPUT_PATH))
-copyFilesFromPath(path.join(rootPath, config.STYLE_PATH), path.join(rootPath, config.OUTPUT_PATH))
+fs.rmSync(path.join(ROOT, config.OUTPUT_PATH), { recursive:true, force: true })
+createFolderPathifNotExists(path.join(ROOT, config.OUTPUT_PATH))
+createFolderPathifNotExists(path.join(ROOT, config.POST_OUTPUT_PATH))
+copyFilesFromPath(path.join(ROOT, config.STYLE_PATH), path.join(ROOT, config.OUTPUT_PATH))
+console.log("Successfuly created output folders and copied style sheets.")
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+
+const postsPath = path.join(ROOT, config.POST_PATH)
+const posts = fs.readdirSync(postsPath)
 let postsData = []
-const posts = fs.readdirSync(path.join(rootPath, config.POST_PATH))
 for (const post of posts) {
-  const rawData = fs.readFileSync(path.join(rootPath, config.POST_PATH, post), { encoding: 'utf-8', flag: 'r' })
+  const rawData = fs.readFileSync(path.join(postsPath, post), { encoding: 'utf-8', flag: 'r' })
   const dataObj = matter(rawData)
   
   const HTMLcontent = md.render(dataObj.content)
@@ -51,21 +54,15 @@ for (const post of posts) {
 
   // Render the page with new data and final HTML to output
   const output = nunjucks.render(`${config.BLOG_POST}.html`, {content: HTMLcontent, title: title, date: date.toDateString()})
-  fs.writeFileSync(path.join(rootPath, config.OUTPUT_PATH, '/posts/', `${filename}.html`), output)
+  fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, '/posts/', `${filename}.html`), output)
 }
 
 // Render the index page with all the posts
 const result = nunjucks.render(`${config.BLOG_INDEX}.html`, {posts: postsData.reverse()})
-fs.writeFileSync(path.join(rootPath, config.OUTPUT_PATH, `${config.BLOG_INDEX}.html`), result)
-
-function removeIllegalChar(s) {
-  return s.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-'); 
-}
+fs.writeFileSync(path.join(ROOT, config.OUTPUT_PATH, `${config.BLOG_INDEX}.html`), result)
 
 // Accepts string of markdown data and copies any images referenced to output folder
-function parseImages(rawData, createFolderPathifNotExist) {
+function parseImages(rawData) {
   const imagePaths = rawData.match(/(?<=!\[.*\]\().*(?=\))/g)
 
   if (imagePaths == null) return
@@ -78,17 +75,16 @@ function parseImages(rawData, createFolderPathifNotExist) {
       
       const imageHomePath = imagePath.match(/^.*[\/$]/g)
   
-      createFolderPathifNotExist(path.join(rootPath, `/${config.OUTPUT_PATH}/posts/${imageHomePath}`))
-      const sourcePath = path.join(rootPath, `/_posts/${imagePath}`)
-      const destPath = path.join(rootPath, `/${config.OUTPUT_PATH}/posts/${imagePath}`)
+      createFolderPathifNotExist(path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imageHomePath}`))
+      const sourcePath = path.join(ROOT, `/_posts/${imagePath}`)
+      const destPath = path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imagePath}`)
 
       try {
         fs.copyFileSync(sourcePath, destPath)
-        console.log(`COPIED FILE: FROM '${sourcePath}' TO '${destPath}'`)
+        // console.log(`COPIED FILE: FROM '${sourcePath}' TO '${destPath}'`)
       } catch (err) {
         console.error(err.message)
       }
-      
     }
   })  
 }
