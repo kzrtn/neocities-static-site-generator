@@ -3,7 +3,7 @@ body {
 }
 
 .viewpage {
-  width: 100vw;
+  width: 95vw;
   display: flex;
   flex-direction: row;
   justify-content: center;
