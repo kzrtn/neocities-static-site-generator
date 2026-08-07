@@ -7,7 +7,7 @@ This page will explain how to use this static site generator.
 ## What is this?
 This is a simple static site generator for blog entries on neocities.
 
-You create your posts as text files in [Markdown](https://www.markdownguide.org/basic-syntax/) format and put them in the `_posts` folder. Then, you build the site using `npm start`. (However, I recommend using `npm run dev` to run a live preview of the website that also updates whenever you save any file in the project). Nunjucks and MarkdownIt will automatically convert your markdown files into HTML files and output them all into the `dist` folder. Blog posts themselves are inserted into `dist/posts/`
+You create your posts as text files in [Markdown](https://www.markdownguide.org/basic-syntax/) format and put them in the `_posts` folder. Then, you build the site using `npx site-ssg build`. (However, I recommend using `npx site-ssg serve` to run a live preview of the website that also updates whenever you save any file in the project). Nunjucks and MarkdownIt will automatically convert your markdown files into HTML files and output them all into the `dist` folder. Blog posts themselves are inserted into `dist/posts/`
 
 You can edit the layouts of the generated blog posts and blog index in the `_templates` folder. The content is inserted with Nunjucks, so it uses [Jinja2](https://jinja.palletsprojects.com/en/stable/) style syntax.
 
