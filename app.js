@@ -99,7 +99,7 @@ const parseImages = rawData => {
         imagePath = (imagePath.match(/(?<=<).*(?=>)/g))[0]
       }
       
-      const imageHomePath = imagePath.match(/^.*[\/$]/g) // This regex gives the closest parent folder to the image file
+      const imageHomePath = imagePath.match(/^\..*\//g) // This regex gives folder path to the image
       createFolderPathifNotExists(path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imageHomePath}`))
       const sourcePath = path.join(ROOT, `/_posts/${imagePath}`)
       const destPath = path.join(ROOT, `/${config.OUTPUT_PATH}/posts/${imagePath}`)
